@@ -1,0 +1,40 @@
+FROM ubuntu:18.04
+
+# System packages  required
+RUN apt-get update && apt-get install -y curl && apt-get install -y git && apt-get install unzip -y
+
+# Additional packages not required 
+RUN apt-get install -y emacs
+
+# Install miniconda to /miniconda
+RUN curl -LO http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+RUN bash Miniconda3-latest-Linux-x86_64.sh -p /miniconda -b
+RUN rm Miniconda3-latest-Linux-x86_64.sh
+ENV PATH=/miniconda/bin:${PATH}
+RUN conda update -y conda
+
+ARG GITUSERNAME="username"
+ARG GITPASSWORD="xxxxxxxx"
+ARG GITUSEREMAIL="xxxxx@xxxxx.xxx"
+ARG TTPCREDSID="xxxxxxxx"
+ARG TTPCREDSKEY="xxxxxxxxxxxxxxxx"
+RUN echo "GITUSERNAME ${GITUSERNAME}"; \
+    echo "GITPASSWORD ${GITPASSWORD}"; \
+    echo "GITUSEREMAIL ${GITUSEREMAIL}"; \
+    echo "TTPCREDSID ${TTPCREDSID}"; \
+    echo "TTPCREDSKEY ${TTPCREDSKEY}"
+
+RUN git config --global user.email "${GITUSEREMAIL}"
+RUN git config --global user.name "${GITUSERNAME}"
+RUN git config --global user.email
+RUN git config --global user.name
+RUN pwd
+RUN git clone https://${GITUSERNAME}:${GITPASSWORD}@dev.azure.com/S2DS/Aug20_Segro/_git/gNEO
+RUN pwd
+RUN ls
+RUN ls gNEO
+WORKDIR /gNEO
+RUN pwd
+RUN ./setupCondaENV.sh -d
+RUN ./setupCondaENV.sh -ttp ${TTPCREDSID} ${TTPCREDSKEY}
+RUN conda env list
